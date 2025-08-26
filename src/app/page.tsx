@@ -1,102 +1,134 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Upload, Camera, Sparkles, Share2, Trophy, Target } from 'lucide-react';
+import Image from 'next/image';
+import ImageUploader from '@/components/ImageUploader';
+import PoseAnalyzer from '@/components/PoseAnalyzer';
+import ResultDisplay from '@/components/ResultDisplay';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentStep, setCurrentStep] = useState<'upload' | 'analyzing' | 'result'>('upload');
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<{
+    score: number;
+    message: string;
+    poseData: any;
+    comparisonDetails: {
+      legPosition: number;
+      armPosition: number;
+      handPosition: number;
+      bodyPosture: number;
+      overallSimilarity: number;
+    };
+  } | null>(null);
+  const [isReferenceLoaded, setIsReferenceLoaded] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // 앱 시작 시 기준 이미지 미리 로드
+  useEffect(() => {
+    const preloadReference = async () => {
+      try {
+        // 기준 이미지 미리 로드 (PoseAnalyzer에서 사용할 때 캐시됨)
+        const img = new window.Image();
+        img.src = '/images/reference-model.jpg';
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        setIsReferenceLoaded(true);
+        console.log('기준 이미지 미리 로드 완료');
+      } catch (error) {
+        console.error('기준 이미지 로드 실패:', error);
+        setIsReferenceLoaded(true); // 실패해도 계속 진행
+      }
+    };
+
+    preloadReference();
+  }, []);
+
+  const handleImageUpload = (imageUrl: string) => {
+    setUploadedImage(imageUrl);
+    setCurrentStep('analyzing');
+  };
+
+  const handleAnalysisComplete = (result: any) => {
+    setAnalysisResult(result);
+    setCurrentStep('result');
+  };
+
+  const handleReset = () => {
+    setUploadedImage(null);
+    setAnalysisResult(null);
+    setCurrentStep('upload');
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* 헤더 - 간단하게 */}
+      <header className="text-center mb-8">
+        <div className="text-5xl mb-2">🧘‍♀️</div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          Like Buddha
+        </h1>
+        <p className="text-gray-500">
+          부처는 모두의 마음 속에 있습니다.<br />
+          일단 자세부터 따라해볼까요?
+        </p>
+      </header>
+
+      {/* 메인 컨텐츠 */}
+      <main className="space-y-8">
+        {currentStep === 'upload' && (
+          <div className="text-center">
+            {/* 기준 모델 - 간단하게 */}
+            <div className="mb-8">
+              <div className="relative w-48 h-64 mx-auto mb-4">
+                <Image
+                  src="/images/reference-model.jpg"
+                  alt="금동미륵보살반가사유상"
+                  fill
+                  className="rounded-lg shadow-lg object-cover"
+                  priority
+                />
+                <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
+                  예시
+                </div>
+              </div>
+              <p className="text-sm text-gray-600">
+                국립중앙박물관 소장
+              </p>
+            </div>
+
+            {/* 업로드 섹션 */}
+            <ImageUploader onImageUpload={handleImageUpload} />
+          </div>
+        )}
+
+        {currentStep === 'analyzing' && uploadedImage && (
+          <div className="text-center">
+            <PoseAnalyzer 
+              imageUrl={uploadedImage} 
+              onAnalysisComplete={handleAnalysisComplete}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+          </div>
+        )}
+
+        {currentStep === 'result' && analysisResult && (
+          <div className="text-center">
+            <ResultDisplay 
+              result={analysisResult}
+              originalImage={uploadedImage}
+              onReset={handleReset}
+            />
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* 푸터 - 최소화 */}
+      <footer className="mt-12 text-center text-gray-400">
+        <p className="text-xs">
+          국립중앙박물관 소장 금동미륵보살반가사유상
+        </p>
       </footer>
     </div>
   );
