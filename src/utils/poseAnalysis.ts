@@ -1,8 +1,23 @@
 import * as tf from '@tensorflow/tfjs';
 import * as poseDetection from '@tensorflow-models/pose-detection';
 
-// 동적으로 로드할 기준 포즈 (초기에는 null)
-let dynamicReferencePose: { [key: string]: { x: number; y: number } } | null = null;
+// 하드코딩된 기준 포즈 (조각상 이미지 감지 문제 해결)
+const REFERENCE_POSE = {
+  nose: { x: 0.5, y: 0.28 },
+  leftShoulder: { x: 0.38, y: 0.32 },
+  rightShoulder: { x: 0.62, y: 0.32 },
+  leftElbow: { x: 0.32, y: 0.48 },
+  rightElbow: { x: 0.68, y: 0.45 },
+  leftWrist: { x: 0.25, y: 0.62 },
+  rightWrist: { x: 0.72, y: 0.22 }, // 뺨에 닿는 위치
+  leftHip: { x: 0.42, y: 0.68 },
+  rightHip: { x: 0.58, y: 0.68 },
+  leftKnee: { x: 0.35, y: 0.82 },
+  rightKnee: { x: 0.65, y: 0.82 },
+  leftAnkle: { x: 0.32, y: 0.92 },
+  rightAnkle: { x: 0.68, y: 0.92 }
+};
+
 let detector: poseDetection.PoseDetector | null = null;
 
 // 이미지 리사이즈 함수 (WebGL 제한 해결)
@@ -69,180 +84,67 @@ async function getPoseDetector() {
   return detector;
 }
 
-// 기준 이미지에서 키포인트를 동적으로 로드하고 캐싱
-async function getReferencePose() {
-  if (dynamicReferencePose) {
-    return dynamicReferencePose;
-  }
-
-  try {
-    const refImg = new Image();
-    refImg.crossOrigin = 'anonymous'; // CORS 문제 방지
-    refImg.src = '/images/reference-model.jpg'; // 기준 이미지 경로
-
-    await new Promise((resolve, reject) => {
-      refImg.onload = resolve;
-      refImg.onerror = reject;
-    });
-
-    const resizedRefImg = resizeImage(refImg); // 기준 이미지도 리사이즈하여 일관성 유지
-    const currentDetector = await getPoseDetector();
-    const poses = await currentDetector.estimatePoses(resizedRefImg);
-
-    if (poses.length === 0) {
-      console.error("기준 이미지에서 사람이 감지되지 않았습니다.");
-      throw new Error("기준 이미지에서 자세를 감지할 수 없습니다.");
-    }
-
-    dynamicReferencePose = normalizeKeypoints(poses[0].keypoints, resizedRefImg.width, resizedRefImg.height);
-    console.log("기준 포즈 로드 완료:", dynamicReferencePose);
-    return dynamicReferencePose;
-  } catch (error) {
-    console.error("기준 포즈 로드 실패:", error);
-    throw error;
-  }
-}
-
-// 반가사유 자세의 특징적인 요소들 분석
-function analyzePoseCharacteristics(userPose: { [key: string]: { x: number; y: number } }, referencePose: { [key: string]: { x: number; y: number } }) {
-  const characteristics = {
-    // 1. 손이 뺨에 닿는지 (반가사유의 핵심)
-    handOnCheek: 0,
-    // 2. 다리가 교차되어 있는지 (반가사유 자세)
-    crossedLegs: 0,
-    // 3. 상체가 약간 기울어져 있는지 (사유하는 자세)
-    tiltedPosture: 0,
-    // 4. 팔이 자연스럽게 놓여있는지
-    naturalArmPosition: 0,
-    // 5. 전체적인 균형감
-    overallBalance: 0
-  };
-
-  // 1. 손이 뺨에 닿는지 확인 (가장 중요한 요소)
-  if (userPose.rightWrist && referencePose.rightWrist) {
-    const distance = calculateDistance(userPose.rightWrist, referencePose.rightWrist);
-    // 뺨 근처에 있으면 높은 점수
-    if (distance < 0.1) {
-      characteristics.handOnCheek = 100;
-    } else if (distance < 0.2) {
-      characteristics.handOnCheek = 80;
-    } else if (distance < 0.3) {
-      characteristics.handOnCheek = 60;
-    } else {
-      characteristics.handOnCheek = Math.max(0, 100 - (distance * 200));
-    }
-  }
-
-  // 2. 다리 교차 상태 확인
-  if (userPose.leftKnee && userPose.rightKnee && userPose.leftAnkle && userPose.rightAnkle) {
-    const leftKneeDistance = calculateDistance(userPose.leftKnee, referencePose.leftKnee);
-    const rightKneeDistance = calculateDistance(userPose.rightKnee, referencePose.rightKnee);
-    const leftAnkleDistance = calculateDistance(userPose.leftAnkle, referencePose.leftAnkle);
-    const rightAnkleDistance = calculateDistance(userPose.rightAnkle, referencePose.rightAnkle);
-    
-    const avgLegDistance = (leftKneeDistance + rightKneeDistance + leftAnkleDistance + rightAnkleDistance) / 4;
-    characteristics.crossedLegs = Math.max(0, 100 - (avgLegDistance * 150));
-  }
-
-  // 3. 상체 기울기 확인 (어깨와 엉덩이의 상대적 위치)
-  if (userPose.leftShoulder && userPose.rightShoulder && userPose.leftHip && userPose.rightHip) {
-    const shoulderCenter = {
-      x: (userPose.leftShoulder.x + userPose.rightShoulder.x) / 2,
-      y: (userPose.leftShoulder.y + userPose.rightShoulder.y) / 2
-    };
-    const hipCenter = {
-      x: (userPose.leftHip.x + userPose.rightHip.x) / 2,
-      y: (userPose.leftHip.y + userPose.rightHip.y) / 2
-    };
-    
-    // 상체가 약간 기울어져 있으면 높은 점수
-    const tiltAngle = Math.abs(shoulderCenter.x - hipCenter.x);
-    if (tiltAngle > 0.05 && tiltAngle < 0.15) {
-      characteristics.tiltedPosture = 100;
-    } else if (tiltAngle > 0.02 && tiltAngle < 0.2) {
-      characteristics.tiltedPosture = 70;
-    } else {
-      characteristics.tiltedPosture = Math.max(0, 100 - (Math.abs(tiltAngle - 0.1) * 500));
-    }
-  }
-
-  // 4. 팔 위치의 자연스러움
-  if (userPose.leftElbow && userPose.rightElbow && userPose.leftShoulder && userPose.rightShoulder) {
-    const leftArmDistance = calculateDistance(userPose.leftElbow, referencePose.leftElbow);
-    const rightArmDistance = calculateDistance(userPose.rightElbow, referencePose.rightElbow);
-    const avgArmDistance = (leftArmDistance + rightArmDistance) / 2;
-    characteristics.naturalArmPosition = Math.max(0, 100 - (avgArmDistance * 150));
-  }
-
-  // 5. 전체적인 균형감 (모든 키포인트의 조화)
-  let totalDistance = 0;
+// 간단한 자세 유사도 계산
+function calculatePoseSimilarity(userPose: { [key: string]: { x: number; y: number } }) {
+  let totalScore = 0;
   let validKeypoints = 0;
   
-  Object.keys(referencePose).forEach(key => {
+  // 각 키포인트별로 유사도 계산
+  Object.keys(REFERENCE_POSE).forEach(key => {
     if (userPose[key]) {
-      const distance = calculateDistance(referencePose[key as keyof typeof referencePose], userPose[key]);
-      totalDistance += distance;
+      const distance = calculateDistance(REFERENCE_POSE[key as keyof typeof REFERENCE_POSE], userPose[key]);
+      // 거리가 가까울수록 높은 점수 (최대 100점)
+      const score = Math.max(0, 100 - (distance * 200));
+      totalScore += score;
       validKeypoints++;
     }
   });
   
-  if (validKeypoints > 0) {
-    const avgDistance = totalDistance / validKeypoints;
-    characteristics.overallBalance = Math.max(0, 100 - (avgDistance * 100));
-  }
-
-  return characteristics;
+  return validKeypoints > 0 ? totalScore / validKeypoints : 0;
 }
 
-// 자세 유사도 계산 (설득력 있는 알고리즘)
-async function calculatePoseSimilarity(userPose: { [key: string]: { x: number; y: number } }) {
-  const REFERENCE_POSE = await getReferencePose(); // 동적으로 로드된 기준 포즈 사용
-  if (!REFERENCE_POSE) throw new Error("Reference pose not loaded.");
-
-  // 반가사유 자세의 특징적 요소들 분석
-  const characteristics = analyzePoseCharacteristics(userPose, REFERENCE_POSE);
+// 특정 자세 요소별 점수 계산
+function calculateDetailedScores(userPose: { [key: string]: { x: number; y: number } }) {
+  const scores = {
+    legPosition: 0,
+    armPosition: 0,
+    handPosition: 0,
+    bodyPosture: 0
+  };
   
-  // 가중치를 적용한 종합 점수 계산
-  const weights = {
-    handOnCheek: 0.35,      // 가장 중요한 요소 (35%)
-    crossedLegs: 0.25,      // 다리 자세 (25%)
-    tiltedPosture: 0.20,    // 상체 기울기 (20%)
-    naturalArmPosition: 0.15, // 팔 위치 (15%)
-    overallBalance: 0.05    // 전체 균형 (5%)
-  };
-
-  const totalScore = 
-    characteristics.handOnCheek * weights.handOnCheek +
-    characteristics.crossedLegs * weights.crossedLegs +
-    characteristics.tiltedPosture * weights.tiltedPosture +
-    characteristics.naturalArmPosition * weights.naturalArmPosition +
-    characteristics.overallBalance * weights.overallBalance;
-
-  return totalScore;
-}
-
-// 특정 자세 요소별 점수 계산 (설득력 있는 분석)
-async function calculateDetailedScores(userPose: { [key: string]: { x: number; y: number } }) {
-  const REFERENCE_POSE = await getReferencePose(); // 동적으로 로드된 기준 포즈 사용
-  if (!REFERENCE_POSE) throw new Error("Reference pose not loaded.");
-
-  const characteristics = analyzePoseCharacteristics(userPose, REFERENCE_POSE);
-
-  return {
-    legPosition: Math.round(characteristics.crossedLegs),
-    armPosition: Math.round(characteristics.naturalArmPosition),
-    handPosition: Math.round(characteristics.handOnCheek),
-    bodyPosture: Math.round(characteristics.tiltedPosture),
-    overallSimilarity: Math.round(characteristics.overallBalance)
-  };
+  // 다리 위치 점수 (무릎과 발목)
+  if (userPose.leftKnee && userPose.rightKnee && userPose.leftAnkle && userPose.rightAnkle) {
+    const leftLegScore = 100 - (calculateDistance(REFERENCE_POSE.leftKnee, userPose.leftKnee) * 200);
+    const rightLegScore = 100 - (calculateDistance(REFERENCE_POSE.rightKnee, userPose.rightKnee) * 200);
+    scores.legPosition = Math.max(0, (leftLegScore + rightLegScore) / 2);
+  }
+  
+  // 팔 위치 점수 (어깨와 팔꿈치)
+  if (userPose.leftShoulder && userPose.rightShoulder && userPose.leftElbow && userPose.rightElbow) {
+    const leftArmScore = 100 - (calculateDistance(REFERENCE_POSE.leftElbow, userPose.leftElbow) * 200);
+    const rightArmScore = 100 - (calculateDistance(REFERENCE_POSE.rightElbow, userPose.rightElbow) * 200);
+    scores.armPosition = Math.max(0, (leftArmScore + rightArmScore) / 2);
+  }
+  
+  // 손 위치 점수 (특히 오른손이 뺨에 닿는지)
+  if (userPose.rightWrist) {
+    scores.handPosition = Math.max(0, 100 - (calculateDistance(REFERENCE_POSE.rightWrist, userPose.rightWrist) * 300));
+  }
+  
+  // 상체 자세 점수 (어깨와 엉덩이)
+  if (userPose.leftShoulder && userPose.rightShoulder && userPose.leftHip && userPose.rightHip) {
+    const shoulderScore = 100 - (calculateDistance(REFERENCE_POSE.leftShoulder, userPose.leftShoulder) * 200);
+    const hipScore = 100 - (calculateDistance(REFERENCE_POSE.leftHip, userPose.leftHip) * 200);
+    scores.bodyPosture = Math.max(0, (shoulderScore + hipScore) / 2);
+  }
+  
+  return scores;
 }
 
 // 메인 분석 함수
 export async function analyzePose(imageElement: HTMLImageElement) {
   try {
     const currentDetector = await getPoseDetector(); // 모델 로드
-    const REFERENCE_POSE_DATA = await getReferencePose(); // 기준 포즈 로드
-
     const resizedImage = resizeImage(imageElement); // 사용자 이미지도 리사이즈
 
     // 이미지에서 자세 감지
@@ -255,14 +157,39 @@ export async function analyzePose(imageElement: HTMLImageElement) {
     const pose = poses[0];
     const normalizedPose = normalizeKeypoints(pose.keypoints, resizedImage.width, resizedImage.height);
 
+    // 디버깅: 감지된 키포인트 출력
+    console.log('🎯 감지된 키포인트:', normalizedPose);
+
+    // 유효한 키포인트가 충분한지 확인
+    const validKeypoints = Object.keys(normalizedPose).filter(key => 
+      normalizedPose[key] && 
+      normalizedPose[key].x !== undefined && 
+      normalizedPose[key].y !== undefined
+    ).length;
+
+    console.log('✅ 유효한 키포인트 개수:', validKeypoints);
+
+    // 최소 5개 이상의 키포인트가 감지되어야 함
+    if (validKeypoints < 5) {
+      throw new Error('충분한 신체 부위가 감지되지 않았습니다. 더 명확한 사진을 사용해주세요.');
+    }
+
     // 전체 유사도 계산
-    const overallSimilarity = await calculatePoseSimilarity(normalizedPose);
+    const overallSimilarity = calculatePoseSimilarity(normalizedPose);
 
     // 세부 점수 계산
-    const detailedScores = await calculateDetailedScores(normalizedPose);
+    const detailedScores = calculateDetailedScores(normalizedPose);
 
     // 완벽한 매칭 체크 (같은 이미지를 올렸을 때 100점 보장)
     const isPerfectMatch = overallSimilarity >= 99.9; // 99.9점 이상이면 100점으로 간주
+
+    // 디버깅: 최종 결과 출력
+    console.log('🏆 최종 분석 결과:', {
+      overallSimilarity,
+      isPerfectMatch,
+      finalScore: isPerfectMatch ? 100 : Math.round(overallSimilarity),
+      detailedScores
+    });
 
     return {
       score: isPerfectMatch ? 100 : Math.round(overallSimilarity),
@@ -272,23 +199,34 @@ export async function analyzePose(imageElement: HTMLImageElement) {
         confidence: overallSimilarity / 100
       },
       comparisonDetails: {
-        legPosition: detailedScores.legPosition,
-        armPosition: detailedScores.armPosition,
-        handPosition: detailedScores.handPosition,
-        bodyPosture: detailedScores.bodyPosture,
+        legPosition: Math.round(detailedScores.legPosition),
+        armPosition: Math.round(detailedScores.armPosition),
+        handPosition: Math.round(detailedScores.handPosition),
+        bodyPosture: Math.round(detailedScores.bodyPosture),
         overallSimilarity: Math.round(overallSimilarity)
       }
     };
 
   } catch (error) {
     console.error('자세 분석 중 오류:', error);
-    throw error;
+    
+    // 더 구체적인 오류 메시지 제공
+    let errorMessage = '사람이 감지되지 않았어요! 📸';
+    if (error instanceof Error) {
+      if (error.message.includes('충분한 신체 부위')) {
+        errorMessage = '더 명확한 사진을 사용해주세요! 📷';
+      } else if (error.message.includes('사람이 감지되지 않았습니다')) {
+        errorMessage = '사람이 화면에 제대로 보이지 않아요! 👤';
+      }
+    }
+    
+    throw new Error(errorMessage);
   }
 }
 
-// 점수별 메시지 (더 구체적이고 설득력 있게)
+// 점수별 메시지
 function getMessageByScore(score: number): string {
-  if (score >= 95) return "완벽한 반가사유 자세! 🎯✨"; // 100점은 isPerfectMatch에서 처리
+  if (score >= 95) return "완벽한 반가사유 자세! 🎯✨";
   if (score >= 90) return "거의 완벽해요! 손이 뺨에 닿는 자세가 정말 좋아요! 🌟";
   if (score >= 80) return "매우 좋아요! 다리 교차와 상체 기울기가 자연스러워요! 🧘‍♂️";
   if (score >= 70) return "좋은 자세예요! 반가사유의 핵심 요소들이 잘 표현되었어요! 💪";

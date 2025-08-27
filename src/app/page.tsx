@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Upload, Camera, Sparkles, Share2, Trophy, Target } from 'lucide-react';
 import Image from 'next/image';
 import ImageUploader from '@/components/ImageUploader';
@@ -22,29 +22,6 @@ export default function Home() {
       overallSimilarity: number;
     };
   } | null>(null);
-  const [isReferenceLoaded, setIsReferenceLoaded] = useState(false);
-
-  // 앱 시작 시 기준 이미지 미리 로드
-  useEffect(() => {
-    const preloadReference = async () => {
-      try {
-        // 기준 이미지 미리 로드 (PoseAnalyzer에서 사용할 때 캐시됨)
-        const img = new window.Image();
-        img.src = '/images/reference-model.jpg';
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-        });
-        setIsReferenceLoaded(true);
-        console.log('기준 이미지 미리 로드 완료');
-      } catch (error) {
-        console.error('기준 이미지 로드 실패:', error);
-        setIsReferenceLoaded(true); // 실패해도 계속 진행
-      }
-    };
-
-    preloadReference();
-  }, []);
 
   const handleImageUpload = (imageUrl: string) => {
     setUploadedImage(imageUrl);
@@ -71,8 +48,8 @@ export default function Home() {
           Like Buddha
         </h1>
         <p className="text-gray-500">
-          부처는 모두의 마음 속에 있습니다.<br />
-          일단 자세부터 따라해볼까요?
+          부처는 모두의 마음 속에 있습니다<br />
+          자세부터 부처님이 되어볼까요?
         </p>
       </header>
 
@@ -95,7 +72,7 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                국립중앙박물관 소장
+                국보 83호. 금동미륵보살반가사유상
               </p>
             </div>
 
@@ -127,7 +104,7 @@ export default function Home() {
       {/* 푸터 - 최소화 */}
       <footer className="mt-12 text-center text-gray-400">
         <p className="text-xs">
-          국립중앙박물관 소장 금동미륵보살반가사유상
+          만든이 : 솜율애비
         </p>
       </footer>
     </div>
