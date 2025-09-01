@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Share2, Download, RotateCcw } from 'lucide-react';
+import { Share2, Download, RotateCcw, MapPin, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -9,6 +9,7 @@ interface ResultDisplayProps {
   result: {
     score: number;
     message: string;
+    messageKey?: string; // 메시지 키 추가
     poseData: any;
     comparisonDetails: {
       legPosition: number;
@@ -79,7 +80,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 48px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('결과!', canvas.width / 2, 80);
+      ctx.fillText(t('result'), canvas.width / 2, 80);
       
       // 점수
       ctx.fillStyle = '#22c55e'; // green-500
@@ -102,7 +103,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       // 비교 제목
       ctx.fillStyle = '#1f2937';
       ctx.font = 'bold 18px Arial';
-      ctx.fillText('비교', canvas.width / 2, 380);
+      ctx.fillText(t('comparison'), canvas.width / 2, 380);
       
       // 이미지 로드 및 그리기
       const referenceImg = new window.Image();
@@ -123,16 +124,16 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       ctx.drawImage(referenceImg, 100, 400, 150, 200);
       ctx.fillStyle = '#6b7280';
       ctx.font = '12px Arial';
-      ctx.fillText('예시', 175, 620);
+      ctx.fillText(t('example'), 175, 620);
       
       // 사용자 이미지
       ctx.drawImage(userImg, 350, 400, 150, 200);
-      ctx.fillText('당신', 425, 620);
+      ctx.fillText(t('you'), 425, 620);
       
       // 다운로드
       const link = document.createElement('a');
       link.href = canvas.toDataURL('image/png', 0.9);
-      link.download = `부처님자세-${result.score}점.png`;
+      link.download = `${t('buddhaPose')}-${result.score}${t('score')}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -169,7 +170,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
               ></div>
             </div>
             <p className="text-lg font-semibold text-gray-800">
-              {result.message}
+              {result.messageKey ? t(result.messageKey) : result.message}
             </p>
           </div>
 
@@ -182,9 +183,9 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
               <div className="text-center">
                 <Image
                   src="/images/reference-model.jpg"
-                  alt="기준 모델"
-                  width={120}
-                  height={160}
+                  alt={t('referenceModel')}
+                  width={150}
+                  height={200}
                   className="rounded-lg shadow-md mx-auto"
                 />
                 <p className="text-xs text-gray-600 mt-1">{t('example')}</p>
@@ -192,8 +193,8 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
               <div className="text-center">
                 <img 
                   src={originalImage || ''} 
-                  alt="당신의 자세" 
-                  className="w-[120px] h-[160px] object-cover rounded-lg shadow-md mx-auto"
+                  alt={t('yourPose')} 
+                  className="w-[150px] h-[200px] object-cover rounded-lg shadow-md mx-auto"
                 />
                 <p className="text-xs text-gray-600 mt-1">{t('you')}</p>
               </div>
@@ -237,9 +238,47 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
           onClick={onReset}
           className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
         >
-                      <RotateCcw size={14} className="inline mr-1" />
-            {t('tryAgain')}
+          <RotateCcw size={14} className="inline mr-1" />
+          {t('tryAgain')}
         </button>
+      </div>
+
+      {/* 작품 정보 섹션 */}
+      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+        <div className="text-center mb-4">
+          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+            {t('artworkTitle')}
+          </h4>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {t('artworkDescription')}
+          </p>
+        </div>
+        
+        <div className="border-t pt-4">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <MapPin size={16} className="text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">
+              {t('locationName')}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 text-center mb-3">
+            {t('locationAddress')}
+          </p>
+          <div className="text-center">
+            <div className="w-full h-32 rounded-lg overflow-hidden border">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3165.5!2d126.9794!3d37.5236!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357ca158e1df4ffd%3A0x7c0b0b0b0b0b0b0b!2z6rWQ7ZmU64yA7ZWZ6rWQ!5e0!3m2!1sko!2skr!4v1234567890"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="국립중앙박물관"
+              ></iframe>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

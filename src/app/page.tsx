@@ -13,18 +13,19 @@ export default function Home() {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<'upload' | 'analyzing' | 'result'>('upload');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<{
-    score: number;
-    message: string;
-    poseData: any;
-    comparisonDetails: {
-      legPosition: number;
-      armPosition: number;
-      handPosition: number;
-      bodyPosture: number;
-      overallSimilarity: number;
-    };
-  } | null>(null);
+                const [analysisResult, setAnalysisResult] = useState<{
+                score: number;
+                message: string;
+                messageKey?: string;
+                poseData: any;
+                comparisonDetails: {
+                  legPosition: number;
+                  armPosition: number;
+                  handPosition: number;
+                  bodyPosture: number;
+                  overallSimilarity: number;
+                };
+              } | null>(null);
 
   const handleImageUpload = (imageUrl: string) => {
     setUploadedImage(imageUrl);

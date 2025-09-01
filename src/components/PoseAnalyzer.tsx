@@ -53,13 +53,20 @@ export default function PoseAnalyzer({ imageUrl, onAnalysisComplete }: PoseAnaly
         img.onerror = reject;
       });
 
-      const result = await analyzePose(img);
+            const result = await analyzePose(img);
       
-                        setProgress(100);
-                  setStatus(t('analysisComplete'));
-                  await new Promise(resolve => setTimeout(resolve, 300));
+      // 메시지 키도 함께 전달 (실시간 번역을 위해)
+      const translatedResult = {
+        ...result,
+        message: t(result.messageKey || 'noPersonDetected'),
+        messageKey: result.messageKey || 'noPersonDetected'
+      };
+      
+      setProgress(100);
+      setStatus(t('analysisComplete'));
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-      onAnalysisComplete(result);
+      onAnalysisComplete(translatedResult);
 
                     } catch (error) {
                   console.error('분석 중 오류:', error);

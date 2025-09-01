@@ -193,7 +193,7 @@ export async function analyzePose(imageElement: HTMLImageElement) {
 
     return {
       score: isPerfectMatch ? 100 : Math.round(overallSimilarity),
-      message: isPerfectMatch ? "완벽한 매칭! 🎯✨" : getMessageByScore(overallSimilarity),
+      messageKey: isPerfectMatch ? "perfectMatch" : getMessageKeyByScore(overallSimilarity),
       poseData: {
         keypoints: pose.keypoints,
         confidence: overallSimilarity / 100
@@ -224,15 +224,15 @@ export async function analyzePose(imageElement: HTMLImageElement) {
   }
 }
 
-// 점수별 메시지
-function getMessageByScore(score: number): string {
-  if (score >= 95) return "완벽한 반가사유 자세! 🎯✨";
-  if (score >= 90) return "거의 완벽해요! 손이 뺨에 닿는 자세가 정말 좋아요! 🌟";
-  if (score >= 80) return "매우 좋아요! 다리 교차와 상체 기울기가 자연스러워요! 🧘‍♂️";
-  if (score >= 70) return "좋은 자세예요! 반가사유의 핵심 요소들이 잘 표현되었어요! 💪";
-  if (score >= 60) return "괜찮아요! 손 위치를 조금 더 뺨 쪽으로 가져가보세요! 📚";
-  if (score >= 50) return "조금 더 노력해요! 다리를 교차하고 상체를 기울여보세요! 🚶‍♀️";
-  if (score >= 30) return "연습이 필요해요! 반가사유 자세의 기본을 다시 한번 확인해보세요! 🤔";
-  if (score >= 10) return "사람이 감지되었지만 자세가 다르네요! 반가사유 자세를 참고해보세요! 😅";
-  return "사람이 감지되지 않았어요! 📸";
+// 점수별 메시지 키 반환 (번역은 컴포넌트에서 처리)
+function getMessageKeyByScore(score: number): string {
+  if (score >= 95) return "perfectMatch";
+  if (score >= 90) return "almostPerfect";
+  if (score >= 80) return "veryGood";
+  if (score >= 70) return "good";
+  if (score >= 60) return "okay";
+  if (score >= 50) return "needEffort";
+  if (score >= 30) return "needPractice";
+  if (score >= 10) return "detectedButDifferent";
+  return "noPersonDetected";
 }
