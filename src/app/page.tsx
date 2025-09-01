@@ -111,8 +111,18 @@ export default function Home() {
 
                       {/* 푸터 - 최소화 */}
                 <footer className="mt-12 text-center text-gray-400">
-                  <p className="text-xs">
+                  <p className="text-xs mb-2">
                     {t('creator')}
+                  </p>
+                  <p className="text-xs">
+                    <a 
+                      href="https://open.kakao.com/o/gloUidHh" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:text-blue-700 underline"
+                    >
+                      [의견, 아이디어 제보 오픈카톡]
+                    </a>
                   </p>
                 </footer>
     </div>
