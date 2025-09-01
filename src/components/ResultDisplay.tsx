@@ -133,7 +133,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       // 다운로드
       const link = document.createElement('a');
       link.href = canvas.toDataURL('image/png', 0.9);
-      link.download = `${t('buddhaPose')}-${result.score}${t('score')}.png`;
+      link.download = `like_buddha_${result.score}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
