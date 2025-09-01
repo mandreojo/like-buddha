@@ -63,7 +63,8 @@ const translations = {
                 artworkDescription: '대한민국 국보 제83호. 7세기 통일신라시대 작품으로, 깊은 사색에 잠긴 미륵보살의 모습을 표현한 불교 조각의 걸작입니다.',
                 locationName: '국립중앙박물관',
                 locationAddress: '서울특별시 용산구 서빙고로 137',
-                viewOnMap: '지도에서 보기'
+                viewOnMap: '지도에서 보기',
+    language: 'Language'
               },
   en: {
     title: 'Like Buddha',
@@ -114,7 +115,8 @@ const translations = {
                 artworkDescription: 'National Treasure of Korea No. 83. A masterpiece of Buddhist sculpture from the 7th century Unified Silla period, depicting the Pensive Bodhisattva in deep contemplation.',
                 locationName: 'National Museum of Korea',
                 locationAddress: '137 Seobinggo-ro, Yongsan-gu, Seoul',
-                viewOnMap: 'View on Map'
+                viewOnMap: 'View on Map',
+    language: 'Language'
               },
   ja: {
     title: 'Like Buddha',
@@ -165,7 +167,8 @@ const translations = {
                 artworkDescription: '大韓民国国宝第83号。7世紀統一新羅時代の作品で、深い思索に沈む弥勒菩薩の姿を表現した仏教彫刻の傑作です。',
                 locationName: '国立中央博物館',
                 locationAddress: 'ソウル特別市龍山区西氷庫路137',
-                viewOnMap: '地図で見る'
+                viewOnMap: '地図で見る',
+    language: 'Language'
               },
   'zh-cn': {
     title: 'Like Buddha',
@@ -216,7 +219,8 @@ const translations = {
                 artworkDescription: '大韩民国国宝第83号。7世纪统一新罗时代作品，表现陷入深思的弥勒菩萨形象的佛教雕刻杰作。',
                 locationName: '国立中央博物馆',
                 locationAddress: '首尔特别市龙山区西冰库路137',
-                viewOnMap: '在地图中查看'
+                viewOnMap: '在地图中查看',
+    language: 'Language'
               },
   'zh-tw': {
     title: 'Like Buddha',
@@ -267,7 +271,8 @@ const translations = {
                 artworkDescription: '大韓民國國寶第83號。7世紀統一新羅時代作品，表現陷入深思的彌勒菩薩形象的佛教雕刻傑作。',
                 locationName: '國立中央博物館',
                 locationAddress: '首爾特別市龍山區西冰庫路137',
-                viewOnMap: '在地圖中查看'
+                viewOnMap: '在地圖中查看',
+    language: 'Language'
               }
 };
 

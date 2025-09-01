@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Upload, Camera, Sparkles, Share2, Trophy, Target } from 'lucide-react';
+// 불필요한 아이콘 import 제거됨
 import Image from 'next/image';
 import ImageUploader from '@/components/ImageUploader';
 import PoseAnalyzer from '@/components/PoseAnalyzer';
@@ -13,26 +13,54 @@ export default function Home() {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<'upload' | 'analyzing' | 'result'>('upload');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-                const [analysisResult, setAnalysisResult] = useState<{
-                score: number;
-                message: string;
-                messageKey?: string;
-                poseData: any;
-                comparisonDetails: {
-                  legPosition: number;
-                  armPosition: number;
-                  handPosition: number;
-                  bodyPosture: number;
-                  overallSimilarity: number;
-                };
-              } | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<{
+    score: number;
+    message: string;
+    messageKey?: string;
+    poseData: {
+      keypoints: Array<{
+        name?: string;
+        x: number;
+        y: number;
+        score?: number;
+      }>;
+      confidence: number;
+    };
+    comparisonDetails: {
+      legPosition: number;
+      armPosition: number;
+      handPosition: number;
+      bodyPosture: number;
+      overallSimilarity: number;
+    };
+  } | null>(null);
 
   const handleImageUpload = (imageUrl: string) => {
     setUploadedImage(imageUrl);
     setCurrentStep('analyzing');
   };
 
-  const handleAnalysisComplete = (result: any) => {
+  const handleAnalysisComplete = (result: {
+    score: number;
+    message: string;
+    messageKey?: string;
+    poseData: {
+      keypoints: Array<{
+        name?: string;
+        x: number;
+        y: number;
+        score?: number;
+      }>;
+      confidence: number;
+    };
+    comparisonDetails: {
+      legPosition: number;
+      armPosition: number;
+      handPosition: number;
+      bodyPosture: number;
+      overallSimilarity: number;
+    };
+  }) => {
     setAnalysisResult(result);
     setCurrentStep('result');
   };
@@ -109,22 +137,22 @@ export default function Home() {
         )}
       </main>
 
-                      {/* 푸터 - 최소화 */}
-                <footer className="mt-12 text-center text-gray-400">
-                  <p className="text-xs mb-2">
-                    {t('creator')}
-                  </p>
-                  <p className="text-xs">
-                    <a 
-                      href="https://open.kakao.com/o/gloUidHh" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:text-blue-700 underline"
-                    >
-                      [의견, 아이디어 제보 오픈카톡]
-                    </a>
-                  </p>
-                </footer>
+      {/* 푸터 - 최소화 */}
+      <footer className="mt-12 text-center text-gray-400">
+        <p className="text-xs mb-2">
+          {t('creator')}
+        </p>
+        <p className="text-xs">
+          <a 
+            href="https://open.kakao.com/o/gloUidHh" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:text-blue-700 underline"
+          >
+            [의견, 아이디어 제보 오픈카톡]
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

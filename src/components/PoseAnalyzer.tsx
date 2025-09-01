@@ -99,24 +99,25 @@ export default function PoseAnalyzer({ imageUrl, onAnalysisComplete }: PoseAnaly
           </div>
           
           <div>
-                                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                        {t('analyzing')}
-                      </h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              {t('analyzing')}
+            </h3>
             <p className="text-sm text-gray-600">
               {status}
             </p>
           </div>
 
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div 
-              className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-orange-400 to-orange-600 h-3 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
           
-          <p className="text-sm text-gray-500">
-            {progress}% 완료
-          </p>
+          <div className="flex justify-between items-center text-sm text-gray-500">
+            <span>{status}</span>
+            <span className="font-medium">{progress}%</span>
+          </div>
 
           <div className="mt-4">
             <img 

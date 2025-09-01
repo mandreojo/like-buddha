@@ -1,22 +1,6 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { Metadata } from 'next'
 
-const inter = Inter({ subsets: ["latin"] });
-
-// URL 파라미터에서 언어를 추출하는 함수
-function getLanguageFromSearchParams(searchParams: { [key: string]: string | string[] | undefined }): string {
-  const lang = searchParams.lang;
-  if (typeof lang === 'string' && ['ko', 'en', 'ja', 'zh-cn', 'zh-tw'].includes(lang)) {
-    return lang;
-  }
-  return 'ko'; // 기본값
-}
-
-// 언어별 메타데이터 생성
-function generateLanguageMetadata(language: string): Metadata {
+export function generateMetadata(language: string = 'ko'): Metadata {
   const baseUrl = 'https://like-buddha.vercel.app'
   
   const titles = {
@@ -55,25 +39,6 @@ function generateLanguageMetadata(language: string): Metadata {
     title: titles[language as keyof typeof titles] || titles.ko,
     description: descriptions[language as keyof typeof descriptions] || descriptions.ko,
     keywords: keywords[language as keyof typeof keywords] || keywords.ko,
-    authors: [{ name: "Like Buddha" }],
-    creator: "Like Buddha",
-    publisher: "Like Buddha",
-    formatDetection: {
-      email: false,
-      address: false,
-      telephone: false,
-    },
-    metadataBase: new URL(baseUrl),
-    alternates: {
-      canonical: `${baseUrl}${language !== 'ko' ? `?lang=${language}` : ''}`,
-      languages: {
-        'ko': baseUrl,
-        'en': `${baseUrl}?lang=en`,
-        'ja': `${baseUrl}?lang=ja`,
-        'zh-CN': `${baseUrl}?lang=zh-cn`,
-        'zh-TW': `${baseUrl}?lang=zh-tw`,
-      },
-    },
     openGraph: {
       title: titles[language as keyof typeof titles] || titles.ko,
       description: descriptions[language as keyof typeof descriptions] || descriptions.ko,
@@ -97,108 +62,15 @@ function generateLanguageMetadata(language: string): Metadata {
       images: ['/twitter-image'],
       creator: '@likebuddha',
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+    alternates: {
+      canonical: `${baseUrl}${language !== 'ko' ? `?lang=${language}` : ''}`,
+      languages: {
+        'ko': baseUrl,
+        'en': `${baseUrl}?lang=en`,
+        'ja': `${baseUrl}?lang=ja`,
+        'zh-CN': `${baseUrl}?lang=zh-cn`,
+        'zh-TW': `${baseUrl}?lang=zh-tw`,
       },
-    },
-    verification: {
-      google: 'your-google-verification-code',
     },
   }
-}
-
-// 기본 메타데이터 (한국어)
-export const metadata: Metadata = generateLanguageMetadata('ko');
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Like Buddha - 케이팝 데몬 헌터스 반가사유상 자세 따라하기",
-    "description": "넷플릭스 '케이팝 데몬 헌터스'로 화제가 된 국립중앙박물관 반가사유상! AI로 내 자세와 얼마나 비슷한지 분석받아보세요.",
-    "url": "https://like-buddha.vercel.app",
-    "applicationCategory": "EntertainmentApplication",
-    "operatingSystem": "Web Browser",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "KRW"
-    },
-    "creator": {
-      "@type": "Organization",
-      "name": "Like Buddha"
-    },
-    "about": {
-      "@type": "Thing",
-      "name": "금동미륵보살반가사유상",
-      "description": "대한민국 국보 제83호. 7세기 통일신라시대 작품으로, 깊은 사색에 잠긴 미륵보살의 모습을 표현한 불교 조각의 걸작",
-      "additionalProperty": [
-        {
-          "@type": "PropertyValue",
-          "name": "국보번호",
-          "value": "제83호"
-        },
-        {
-          "@type": "PropertyValue", 
-          "name": "시대",
-          "value": "7세기 통일신라"
-        },
-        {
-          "@type": "PropertyValue",
-          "name": "소장처",
-          "value": "국립중앙박물관"
-        }
-      ]
-    },
-    "mentions": [
-      {
-        "@type": "TVSeries",
-        "name": "케이팝 데몬 헌터스",
-        "description": "넷플릭스 오리지널 시리즈",
-        "provider": {
-          "@type": "Organization",
-          "name": "Netflix"
-        }
-      },
-      {
-        "@type": "Museum",
-        "name": "국립중앙박물관",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "서울특별시 용산구 서빙고로 137",
-          "addressCountry": "KR"
-        }
-      }
-    ]
-  };
-
-  return (
-    <html lang="ko">
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
-      </head>
-      <body className={inter.className}>
-        <GoogleAnalytics />
-        <LanguageProvider>
-          <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-100">
-            {children}
-          </div>
-        </LanguageProvider>
-      </body>
-    </html>
-  );
 }

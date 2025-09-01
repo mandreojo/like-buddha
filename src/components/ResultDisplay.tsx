@@ -1,16 +1,25 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Share2, Download, RotateCcw, MapPin, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { trackUrlCopy, trackImageDownload, trackPoseAnalysis, trackPerfectMatch } from '@/lib/gtag';
 
 interface ResultDisplayProps {
   result: {
     score: number;
     message: string;
-    messageKey?: string; // 메시지 키 추가
-    poseData: any;
+    messageKey?: string;
+    poseData: {
+      keypoints: Array<{
+        name?: string;
+        x: number;
+        y: number;
+        score?: number;
+      }>;
+      confidence: number;
+    };
     comparisonDetails: {
       legPosition: number;
       armPosition: number;
@@ -26,7 +35,19 @@ interface ResultDisplayProps {
 export default function ResultDisplay({ result, originalImage, onReset }: ResultDisplayProps) {
   const { t } = useLanguage();
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const resultRef = useRef<HTMLDivElement>(null);
+
+  // GA 이벤트 추적 - 분석 결과 표시 시
+  React.useEffect(() => {
+    trackPoseAnalysis(result.score);
+    
+    // 100% 매치인 경우 특별 이벤트 추적
+    if (result.score === 100) {
+      trackPerfectMatch();
+    }
+  }, [result.score]);
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-500';
@@ -47,18 +68,57 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
     return '🌱';
   };
 
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
   const handleCopyUrl = async () => {
+    const url = window.location.href;
+    
+    // GA 이벤트 추적
+    trackUrlCopy();
+    
     try {
-      await navigator.clipboard.writeText(window.location.href);
-      alert(t('urlCopied'));
+      // 모던 브라우저의 Clipboard API 시도
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        showToastMessage(t('urlCopied'));
+        return;
+      }
+      
+      // 폴백: 구식 방법 (모바일/구형 브라우저용)
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        showToastMessage(t('urlCopied'));
+      } else {
+        throw new Error('execCommand failed');
+      }
     } catch (error) {
       console.error('URL 복사 오류:', error);
-      alert(t('urlCopyFailed'));
+      // 최종 폴백: 사용자에게 수동 복사 안내
+      showToastMessage('URL을 수동으로 복사해주세요: ' + url.substring(0, 50) + '...');
     }
   };
 
   const handleDownload = async () => {
     setIsGeneratingImage(true);
+    
+    // GA 이벤트 추적
+    trackImageDownload(result.score);
+    
     try {
       // Canvas 생성
       const canvas = document.createElement('canvas');
@@ -87,10 +147,11 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       ctx.font = 'bold 72px Arial';
       ctx.fillText(`${result.score}%`, canvas.width / 2, 220);
       
-      // 메시지
+      // 메시지 (현재 언어 기준으로 messageKey 우선 적용)
+      const messageToDraw = result.messageKey ? t(result.messageKey) : result.message;
       ctx.fillStyle = '#1f2937'; // gray-800
       ctx.font = '18px Arial';
-      ctx.fillText(result.message, canvas.width / 2, 280);
+      ctx.fillText(messageToDraw, canvas.width / 2, 280);
       
       // 프로그레스 바 배경
       ctx.fillStyle = '#e5e7eb'; // gray-200
@@ -139,7 +200,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       document.body.removeChild(link);
     } catch (error) {
       console.error('이미지 생성 오류:', error);
-      alert(t('imageGenerationFailed'));
+      showToastMessage(t('imageGenerationFailed'));
     } finally {
       setIsGeneratingImage(false);
     }
@@ -163,9 +224,9 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
                 {result.score}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
               <div 
-                className="bg-orange-500 h-3 rounded-full transition-all duration-1000"
+                className="bg-gradient-to-r from-orange-400 to-orange-600 h-4 rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${result.score}%` }}
               ></div>
             </div>
@@ -208,26 +269,26 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
         {/* URL 복사 */}
         <button
           onClick={handleCopyUrl}
-          className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+          className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm flex items-center justify-center min-h-[44px]"
         >
-                        <Share2 size={14} className="inline mr-1" />
-              {t('shareWithFriends')}
+          <Share2 size={16} className="mr-2" />
+          {t('shareWithFriends')}
         </button>
 
         {/* 다운로드 */}
         <button
           onClick={handleDownload}
           disabled={isGeneratingImage}
-          className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 text-sm"
+          className="w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 text-sm flex items-center justify-center min-h-[44px]"
         >
           {isGeneratingImage ? (
             <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2 inline"></div>
-                  {t('generatingImage')}
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              {t('generatingImage')}
             </>
           ) : (
             <>
-              <Download size={14} className="inline mr-1" />
+              <Download size={16} className="mr-2" />
               {t('saveResultImage')}
             </>
           )}
@@ -236,9 +297,9 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
         {/* 다시 시작 */}
         <button
           onClick={onReset}
-          className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+          className="w-full px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm flex items-center justify-center min-h-[44px]"
         >
-          <RotateCcw size={14} className="inline mr-1" />
+          <RotateCcw size={16} className="mr-2" />
           {t('tryAgain')}
         </button>
       </div>
@@ -280,6 +341,13 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
           </div>
         </div>
       </div>
+
+      {/* 토스트 알림 */}
+      {showToast && (
+        <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-right duration-300">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
