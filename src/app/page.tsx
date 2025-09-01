@@ -6,8 +6,11 @@ import Image from 'next/image';
 import ImageUploader from '@/components/ImageUploader';
 import PoseAnalyzer from '@/components/PoseAnalyzer';
 import ResultDisplay from '@/components/ResultDisplay';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Home() {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<'upload' | 'analyzing' | 'result'>('upload');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<{
@@ -41,15 +44,19 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* 언어 선택기 */}
+      <div className="flex justify-end mb-4">
+        <LanguageSelector />
+      </div>
+
       {/* 헤더 - 간단하게 */}
       <header className="text-center mb-8">
         <div className="text-5xl mb-2">🧘‍♀️</div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Like Buddha
+          {t('title')}
         </h1>
-        <p className="text-gray-500">
-          부처는 모두의 마음 속에 있습니다<br />
-          자세부터 부처님이 되어볼까요?
+        <p className="text-gray-500 whitespace-pre-line">
+          {t('subtitle')}
         </p>
       </header>
 
@@ -68,11 +75,11 @@ export default function Home() {
                   priority
                 />
                 <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
-                  예시
+                  {t('example')}
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                국보 83호. 금동미륵보살반가사유상
+                {t('reference')}
               </p>
             </div>
 
@@ -101,12 +108,12 @@ export default function Home() {
         )}
       </main>
 
-      {/* 푸터 - 최소화 */}
-      <footer className="mt-12 text-center text-gray-400">
-        <p className="text-xs">
-          만든이 : 솜율애비
-        </p>
-      </footer>
+                      {/* 푸터 - 최소화 */}
+                <footer className="mt-12 text-center text-gray-400">
+                  <p className="text-xs">
+                    {t('creator')}
+                  </p>
+                </footer>
     </div>
   );
 }

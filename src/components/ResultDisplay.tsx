@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Share2, Download, RotateCcw } from 'lucide-react';
 import Image from 'next/image';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ResultDisplayProps {
   result: {
@@ -22,6 +23,7 @@ interface ResultDisplayProps {
 }
 
 export default function ResultDisplay({ result, originalImage, onReset }: ResultDisplayProps) {
+  const { t } = useLanguage();
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
@@ -47,10 +49,10 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      alert('URL이 복사되었습니다!');
+      alert(t('urlCopied'));
     } catch (error) {
       console.error('URL 복사 오류:', error);
-      alert('URL 복사에 실패했습니다.');
+      alert(t('urlCopyFailed'));
     }
   };
 
@@ -136,7 +138,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
       document.body.removeChild(link);
     } catch (error) {
       console.error('이미지 생성 오류:', error);
-      alert('이미지 생성에 실패했습니다. 다시 시도해주세요.');
+      alert(t('imageGenerationFailed'));
     } finally {
       setIsGeneratingImage(false);
     }
@@ -149,7 +151,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
         {/* 결과 헤더 */}
         <div className="bg-orange-500 p-6 text-white text-center">
           <div className="text-4xl mb-2">{getScoreEmoji(result.score)}</div>
-          <h2 className="text-2xl font-bold mb-2">결과!</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('result')}</h2>
         </div>
 
         {/* 점수 표시 */}
@@ -174,7 +176,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
           {/* 이미지 비교 */}
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">
-              비교
+              {t('comparison')}
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
@@ -185,7 +187,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
                   height={160}
                   className="rounded-lg shadow-md mx-auto"
                 />
-                <p className="text-xs text-gray-600 mt-1">예시</p>
+                <p className="text-xs text-gray-600 mt-1">{t('example')}</p>
               </div>
               <div className="text-center">
                 <img 
@@ -193,7 +195,7 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
                   alt="당신의 자세" 
                   className="w-[120px] h-[160px] object-cover rounded-lg shadow-md mx-auto"
                 />
-                <p className="text-xs text-gray-600 mt-1">당신</p>
+                <p className="text-xs text-gray-600 mt-1">{t('you')}</p>
               </div>
             </div>
           </div>
@@ -207,8 +209,8 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
           onClick={handleCopyUrl}
           className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
         >
-          <Share2 size={14} className="inline mr-1" />
-          친구와 함께
+                        <Share2 size={14} className="inline mr-1" />
+              {t('shareWithFriends')}
         </button>
 
         {/* 다운로드 */}
@@ -219,13 +221,13 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
         >
           {isGeneratingImage ? (
             <>
-              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2 inline"></div>
-              이미지 생성 중...
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2 inline"></div>
+                  {t('generatingImage')}
             </>
           ) : (
             <>
               <Download size={14} className="inline mr-1" />
-              결과 이미지 저장
+              {t('saveResultImage')}
             </>
           )}
         </button>
@@ -235,8 +237,8 @@ export default function ResultDisplay({ result, originalImage, onReset }: Result
           onClick={onReset}
           className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
         >
-          <RotateCcw size={14} className="inline mr-1" />
-          다시 하기
+                      <RotateCcw size={14} className="inline mr-1" />
+            {t('tryAgain')}
         </button>
       </div>
     </div>

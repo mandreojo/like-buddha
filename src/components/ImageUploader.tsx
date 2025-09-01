@@ -3,12 +3,14 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Camera, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ImageUploaderProps {
   onImageUpload: (imageUrl: string) => void;
 }
 
 export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
+  const { t } = useLanguage();
   const [preview, setPreview] = useState<string | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -53,9 +55,9 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
             <X size={16} />
           </button>
         </div>
-        <p className="text-center text-gray-600 mt-3 text-sm">
-          분석 중...
-        </p>
+                            <p className="text-center text-gray-600 mt-3 text-sm">
+                      {t('analyzing')}
+                    </p>
       </div>
     );
   }
@@ -77,18 +79,18 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
               <Upload className="w-6 h-6 text-orange-600" />
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              사진 업로드
-            </h3>
-            <p className="text-gray-600 text-sm">
-              이 자세 따라해서 찍은 사진을 올려보세요
-            </p>
-          </div>
-          <button className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm">
-            <Camera className="w-4 h-4 inline mr-2" />
-            사진 선택
-          </button>
+                                <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                          {t('uploadTitle')}
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          {t('uploadDesc')}
+                        </p>
+                      </div>
+                      <button className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm">
+                        <Camera className="w-4 h-4 inline mr-2" />
+                        {t('selectPhoto')}
+                      </button>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { analyzePose } from '@/utils/poseAnalysis';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PoseAnalyzerProps {
   imageUrl: string;
@@ -21,25 +22,26 @@ interface PoseAnalyzerProps {
 }
 
 export default function PoseAnalyzer({ imageUrl, onAnalysisComplete }: PoseAnalyzerProps) {
+  const { t } = useLanguage();
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState('모델을 로딩하고 있습니다...');
+  const [status, setStatus] = useState(t('loadingModel'));
 
   useEffect(() => {
     performAnalysis();
   }, [imageUrl]);
 
   const performAnalysis = async () => {
-    try {
-      setProgress(10);
-      setStatus('AI 모델을 로딩하고 있습니다...');
-      await new Promise(resolve => setTimeout(resolve, 500));
+                    try {
+                  setProgress(10);
+                  setStatus(t('loadingModel'));
+                  await new Promise(resolve => setTimeout(resolve, 500));
 
-      setProgress(30);
-      setStatus('이미지를 분석하고 있습니다...');
-      await new Promise(resolve => setTimeout(resolve, 500));
+                  setProgress(30);
+                  setStatus(t('analyzingImage'));
+                  await new Promise(resolve => setTimeout(resolve, 500));
 
-      setProgress(60);
-      setStatus('자세를 비교하고 있습니다...');
+                  setProgress(60);
+                  setStatus(t('comparingPose'));
       
       // 실제 이미지 분석 수행
       const img = new Image();
@@ -53,20 +55,20 @@ export default function PoseAnalyzer({ imageUrl, onAnalysisComplete }: PoseAnaly
 
       const result = await analyzePose(img);
       
-      setProgress(100);
-      setStatus('분석 완료!');
-      await new Promise(resolve => setTimeout(resolve, 300));
+                        setProgress(100);
+                  setStatus(t('analysisComplete'));
+                  await new Promise(resolve => setTimeout(resolve, 300));
 
       onAnalysisComplete(result);
 
-    } catch (error) {
-      console.error('분석 중 오류:', error);
-      setStatus('분석에 실패했습니다. 다시 시도해주세요.');
-      
-      // 오류 시에도 기본 결과 제공
-      const fallbackResult = {
-        score: 0,
-        message: '사람이 감지되지 않았어요! 📸',
+                    } catch (error) {
+                  console.error('분석 중 오류:', error);
+                  setStatus(t('imageGenerationFailed'));
+
+                  // 오류 시에도 기본 결과 제공
+                  const fallbackResult = {
+                    score: 0,
+                    message: t('noPersonDetected'),
         poseData: { keypoints: [], confidence: 0 },
         comparisonDetails: {
           legPosition: 0,
@@ -90,9 +92,9 @@ export default function PoseAnalyzer({ imageUrl, onAnalysisComplete }: PoseAnaly
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              AI 분석 중...
-            </h3>
+                                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        {t('analyzing')}
+                      </h3>
             <p className="text-sm text-gray-600">
               {status}
             </p>
