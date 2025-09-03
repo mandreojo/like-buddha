@@ -47,7 +47,7 @@ export default async function Image() {
             textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
           }}
         >
-          Like Buddha
+          반가사유상
         </div>
         
         {/* 서브타이틀 */}
@@ -61,7 +61,7 @@ export default async function Image() {
             lineHeight: 1.2,
           }}
         >
-          케이팝 데몬 헌터스 반가사유상 자세 따라하기
+          국립중앙박물관 사유의방 미륵상 체험
         </div>
         
         {/* 특징 설명 */}
@@ -141,7 +141,7 @@ export default async function Image() {
                 color: '#dc2626',
               }}
             >
-              넷플릭스
+              불교
             </div>
             <div
               style={{
@@ -149,7 +149,7 @@ export default async function Image() {
                 color: '#6b7280',
               }}
             >
-              케이팝 데몬 헌터스
+              미륵보살
             </div>
           </div>
         </div>

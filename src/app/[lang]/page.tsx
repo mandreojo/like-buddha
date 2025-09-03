@@ -16,27 +16,27 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const baseUrl = 'https://like-buddha.vercel.app'
   
   const titles = {
-    ko: "Like Buddha - 케이팝 데몬 헌터스 반가사유상 자세 따라하기 | AI 자세 분석",
-    en: "Like Buddha - K-Pop Demon Hunters Buddha Pose Challenge | AI Pose Analysis",
-    ja: "Like Buddha - K-POPデーモンハンターズ半跏思惟像ポーズチャレンジ | AIポーズ分析",
-    'zh-cn': "Like Buddha - K-POP恶魔猎手思惟像姿势挑战 | AI姿势分析",
-    'zh-tw': "Like Buddha - K-POP惡魔獵手思惟像姿勢挑戰 | AI姿勢分析"
+    ko: "반가사유상 자세 따라하기 | 국립중앙박물관 사유의방 미륵상 체험",
+    en: "Pensive Bodhisattva Pose Challenge | National Museum of Korea Meditation Room Experience",
+    ja: "半跏思惟像ポーズチャレンジ | 国立中央博物館思惟の間体験",
+    'zh-cn': "思惟像姿势挑战 | 国立中央博物馆思惟室体验",
+    'zh-tw': "思惟像姿勢挑戰 | 國立中央博物館思惟室體驗"
   }
   
   const descriptions = {
-    ko: "넷플릭스 '케이팝 데몬 헌터스'로 화제가 된 국립중앙박물관 반가사유상! 사진을 업로드하고 부처님 자세와 얼마나 비슷한지 AI로 분석받아보세요. 대한민국 국보 제83호 금동미륵보살반가사유상 체험",
-    en: "The National Museum of Korea's Pensive Bodhisattva statue that became a hot topic through Netflix's 'K-Pop Demon Hunters'! Upload your photo and get AI analysis of how similar your pose is to Buddha's. Experience Korea's National Treasure No. 83, the Gilt-bronze Pensive Bodhisattva.",
-    ja: "Netflix『K-POPデーモンハンターズ』で話題になった国立中央博物館の半跏思惟像！写真をアップロードして、仏様のポーズとどれくらい似ているかAIで分析してもらいましょう。大韓民国国宝第83号金銅弥勒菩薩半跏思惟像を体験",
-    'zh-cn': "通过Netflix《K-POP恶魔猎手》成为热点的国立中央博物馆半跏思惟像！上传照片，通过AI分析你的姿势与佛像的相似度。体验大韩民国国宝第83号金铜弥勒菩萨半跏思惟像",
-    'zh-tw': "透過Netflix《K-POP惡魔獵手》成為熱點的國立中央博物館半跏思惟像！上傳照片，透過AI分析你的姿勢與佛像的相似度。體驗大韓民國國寶第83號金銅彌勒菩薩半跏思惟像"
+    ko: "국립중앙박물관 사유의방에 전시된 국보 제83호 금동미륵보살반가사유상! 사진을 업로드하고 불교 미륵상의 자세와 얼마나 비슷한지 AI로 분석받아보세요. 7세기 통일신라 불교조각의 걸작을 체험해보세요.",
+    en: "Experience Korea's National Treasure No. 83, the Gilt-bronze Pensive Bodhisattva from the Meditation Room at the National Museum of Korea! Upload your photo and get AI analysis of how similar your pose is to this Buddhist Maitreya statue. Discover this masterpiece of 7th century Unified Silla Buddhist sculpture.",
+    ja: "国立中央博物館思惟の間に展示されている国宝第83号金銅弥勒菩薩半跏思惟像を体験！写真をアップロードして、仏教弥勒像のポーズとどれくらい似ているかAIで分析してもらいましょう。7世紀統一新羅仏教彫刻の傑作を体験してください。",
+    'zh-cn': "体验国立中央博物馆思惟室展出的国宝第83号金铜弥勒菩萨半跏思惟像！上传照片，通过AI分析你的姿势与佛教弥勒像的相似度。发现7世纪统一新罗佛教雕刻杰作。",
+    'zh-tw': "體驗國立中央博物館思惟室展出的國寶第83號金銅彌勒菩薩半跏思惟像！上傳照片，透過AI分析你的姿勢與佛教彌勒像的相似度。發現7世紀統一新羅佛教雕刻傑作。"
   }
   
   const keywords = {
-    ko: "케이팝 데몬 헌터스, 반가사유상, 국립중앙박물관, 사유의방, 부처님 자세, AI 자세분석, 금동미륵보살반가사유상, 대한민국 국보 제83호, 넷플릭스, 케이팝, 데몬헌터스, 불교조각, 미륵보살, 자세체험, 문화체험",
-    en: "K-Pop Demon Hunters, Pensive Bodhisattva, National Museum of Korea, Buddha pose, AI pose analysis, Gilt-bronze Pensive Bodhisattva, Korea National Treasure No. 83, Netflix, K-Pop, Demon Hunters, Buddhist sculpture, Bodhisattva, pose experience, cultural experience",
-    ja: "K-POPデーモンハンターズ, 半跏思惟像, 国立中央博物館, 仏様ポーズ, AIポーズ分析, 金銅弥勒菩薩半跏思惟像, 大韓民国国宝第83号, ネットフリックス, K-POP, デーモンハンターズ, 仏教彫刻, 弥勒菩薩, ポーズ体験, 文化体験",
-    'zh-cn': "K-POP恶魔猎手, 半跏思惟像, 国立中央博物馆, 佛像姿势, AI姿势分析, 金铜弥勒菩萨半跏思惟像, 大韩民国国宝第83号, 网飞, K-POP, 恶魔猎手, 佛教雕刻, 弥勒菩萨, 姿势体验, 文化体验",
-    'zh-tw': "K-POP惡魔獵手, 半跏思惟像, 國立中央博物館, 佛像姿勢, AI姿勢分析, 金銅彌勒菩薩半跏思惟像, 大韓民國國寶第83號, 網飛, K-POP, 惡魔獵手, 佛教雕刻, 彌勒菩薩, 姿勢體驗, 文化體驗"
+    ko: "국립중앙박물관, 사유의방, 불교, 반가사유상, 미륵상, 금동미륵보살반가사유상, 국보 제83호, 통일신라, 불교조각, 미륵보살, 자세체험, 문화체험, 서울박물관, 용산박물관, 불교미술, 고대조각",
+    en: "National Museum of Korea, Meditation Room, Buddhism, Pensive Bodhisattva, Maitreya, Gilt-bronze Pensive Bodhisattva, National Treasure No. 83, Unified Silla, Buddhist sculpture, Bodhisattva, pose experience, cultural experience, Seoul museum, Yongsan museum, Buddhist art, ancient sculpture",
+    ja: "国立中央博物館, 思惟の間, 仏教, 半跏思惟像, 弥勒菩薩, 金銅弥勒菩薩半跏思惟像, 国宝第83号, 統一新羅, 仏教彫刻, 弥勒菩薩, ポーズ体験, 文化体験, ソウル博物館, 龍山博物館, 仏教美術, 古代彫刻",
+    'zh-cn': "国立中央博物馆, 思惟室, 佛教, 半跏思惟像, 弥勒菩萨, 金铜弥勒菩萨半跏思惟像, 国宝第83号, 统一新罗, 佛教雕刻, 弥勒菩萨, 姿势体验, 文化体验, 首尔博物馆, 龙山博物馆, 佛教艺术, 古代雕刻",
+    'zh-tw': "國立中央博物館, 思惟室, 佛教, 半跏思惟像, 彌勒菩薩, 金銅彌勒菩薩半跏思惟像, 國寶第83號, 統一新羅, 佛教雕刻, 彌勒菩薩, 姿勢體驗, 文化體驗, 首爾博物館, 龍山博物館, 佛教藝術, 古代雕刻"
   }
   
   const locales = {

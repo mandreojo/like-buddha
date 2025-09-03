@@ -41,20 +41,20 @@ export default async function LanguageLayout({
     },
     "about": {
       "@type": "Thing",
-      "name": {
-        ko: "금동미륵보살반가사유상",
-        en: "Gilt-bronze Pensive Bodhisattva",
-        ja: "金銅弥勒菩薩半跏思惟像",
-        'zh-cn': "金铜弥勒菩萨半跏思惟像",
-        'zh-tw': "金銅彌勒菩薩半跏思惟像"
-      }[lang] || "Gilt-bronze Pensive Bodhisattva",
-      "description": {
-        ko: "대한민국 국보 제83호. 7세기 통일신라시대 작품으로, 깊은 사색에 잠긴 미륵보살의 모습을 표현한 불교 조각의 걸작",
-        en: "National Treasure of Korea No. 83. A masterpiece of Buddhist sculpture from the 7th century Unified Silla period, depicting the Pensive Bodhisattva in deep contemplation.",
-        ja: "大韓民国国宝第83号。7世紀統一新羅時代の作品で、深い思索に沈む弥勒菩薩の姿を表現した仏教彫刻の傑作です。",
-        'zh-cn': "大韩民国国宝第83号。7世纪统一新罗时代作品，表现陷入深思的弥勒菩萨形象的佛教雕刻杰作。",
-        'zh-tw': "大韓民國國寶第83號。7世紀統一新羅時代作品，表現陷入深思的彌勒菩薩形象的佛教雕刻傑作。"
-      }[lang] || "National Treasure of Korea No. 83",
+          "name": {
+      ko: "금동미륵보살반가사유상",
+      en: "Gilt-bronze Pensive Bodhisattva",
+      ja: "金銅弥勒菩薩半跏思惟像",
+      'zh-cn': "金铜弥勒菩萨半跏思惟像",
+      'zh-tw': "金銅彌勒菩薩半跏思惟像"
+    }[lang] || "Gilt-bronze Pensive Bodhisattva",
+    "description": {
+      ko: "대한민국 국보 제83호. 7세기 통일신라시대 작품으로, 깊은 사색에 잠긴 미륵보살의 모습을 표현한 불교 조각의 걸작. 국립중앙박물관 사유의방에 전시.",
+      en: "National Treasure of Korea No. 83. A masterpiece of Buddhist sculpture from the 7th century Unified Silla period, depicting the Pensive Bodhisattva in deep contemplation. Exhibited in the Meditation Room at the National Museum of Korea.",
+      ja: "大韓民国国宝第83号。7世紀統一新羅時代の作品で、深い思索に沈む弥勒菩薩の姿を表現した仏教彫刻の傑作。国立中央博物館思惟の間に展示。",
+      'zh-cn': "大韩民国国宝第83号。7世纪统一新罗时代作品，表现陷入深思的弥勒菩萨形象的佛教雕刻杰作。在国立中央博物馆思惟室展出。",
+      'zh-tw': "大韓民國國寶第83號。7世紀統一新羅時代作品，表現陷入深思的彌勒菩薩形象的佛教雕刻傑作。在國立中央博物館思惟室展出。"
+    }[lang] || "National Treasure of Korea No. 83",
       "additionalProperty": [
         {
           "@type": "PropertyValue",
