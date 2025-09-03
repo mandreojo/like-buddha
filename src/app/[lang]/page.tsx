@@ -6,8 +6,8 @@ import HomePage from '../page'
 const supportedLanguages = ['ko', 'en', 'ja', 'zh-cn', 'zh-tw']
 
 // 언어별 메타데이터 생성
-export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
-  const { lang } = params
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
   
   if (!supportedLanguages.includes(lang)) {
     return {}
@@ -117,8 +117,8 @@ export async function generateStaticParams() {
   }))
 }
 
-export default function LanguagePage({ params }: { params: { lang: string } }) {
-  const { lang } = params
+export default async function LanguagePage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
   
   if (!supportedLanguages.includes(lang)) {
     notFound()

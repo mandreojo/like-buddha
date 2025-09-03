@@ -10,7 +10,15 @@ interface PoseAnalyzerProps {
   onAnalysisComplete: (result: {
     score: number;
     message: string;
-    poseData: any;
+    poseData: {
+      keypoints: Array<{
+        name?: string;
+        x: number;
+        y: number;
+        score?: number;
+      }>;
+      confidence: number;
+    };
     comparisonDetails: {
       legPosition: number;
       armPosition: number;

@@ -1,13 +1,13 @@
 import { ReactNode } from 'react'
 
-export default function LanguageLayout({
+export default async function LanguageLayout({
   children,
   params,
 }: {
   children: ReactNode
-  params: { lang: string }
+  params: Promise<{ lang: string }>
 }) {
-  const { lang } = params
+  const { lang } = await params
   
   // 언어별 구조화된 데이터
   const structuredData = {

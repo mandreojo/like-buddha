@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Share2, Download, RotateCcw, MapPin, ExternalLink } from 'lucide-react';
+import { Share2, Download, RotateCcw, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { trackUrlCopy, trackImageDownload, trackPoseAnalysis, trackPerfectMatch } from '@/lib/gtag';

@@ -6,14 +6,7 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// URL 파라미터에서 언어를 추출하는 함수
-function getLanguageFromSearchParams(searchParams: { [key: string]: string | string[] | undefined }): string {
-  const lang = searchParams.lang;
-  if (typeof lang === 'string' && ['ko', 'en', 'ja', 'zh-cn', 'zh-tw'].includes(lang)) {
-    return lang;
-  }
-  return 'ko'; // 기본값
-}
+
 
 // 언어별 메타데이터 생성
 function generateLanguageMetadata(language: string): Metadata {
